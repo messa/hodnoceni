@@ -1,0 +1,9 @@
+body {
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+}
+.answer {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    font-size: 18px;
+}
