@@ -14,8 +14,8 @@
     <div class="container">
 
       <p>
-        {% for reg in regs %}
-          <a href="/{{ reg.id }}" class="btn btn-light">{{ reg.id }}</a>
+        {% for point in datapoints %}
+          <a href="/{{ loop.index }}" class="btn btn-light">{{ loop.index }}</a>
         {% endfor %}
       </p>
     </div>

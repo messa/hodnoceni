@@ -1,0 +1,10 @@
+{
+    "aj": {
+        "question": "Dorozumí se anglicky?",
+        "choices": [0, 1],
+    },
+    "stanoveny_cil": {
+        "question": "Má stanovený cíl?",
+        "choices": [0, 1],
+    }
+]
