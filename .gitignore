@@ -2,6 +2,6 @@ venv
 __pycache__
 .DS_Store
 *.xlsx
-input.json
-evaluations.json
+dataset.json
 questions.json
+answers.json

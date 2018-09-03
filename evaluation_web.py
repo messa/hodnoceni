@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 
 import argparse
-from flask import Flask, Blueprint, render_template, request, redirect, g
+from flask import Flask, Blueprint, render_template, request, redirect, g, abort
+from functools import partial
 import json
-import os
+from pathlib import Path
 
 
 def main():
@@ -14,35 +15,29 @@ def main():
     p.add_argument('--port', type=int, default=8000)
     args = p.parse_args()
 
-    def load_answers():
-        answers = json.loads(Path(args.answers).read_text())
-
-
-    def save_answers(index, datapoint_answers):
-        assert isinstance(index, int)
-        answers = load_answers()
-        assert isinstance(results, list)
-        while len(answers) <= index:
-            answers.append(None)
-        answers[index] = datapoint_answers
-        temp = Path(args.answers + '.temp')
-        temp.write_text(json.dumps(answers, indent=2, sort_keys=True))
-        temp.rename(args.answers)
-
     app = Flask(__name__)
     app.register_blueprint(bp)
 
     @app.before_request
     def register_stuff():
-        g.dataset = load_dataset(args.dataset)
-        g.questions = json.loads(Path(args.questions).read_text())
-        g.answers = json.loads(Path(args.answers).read_text())
-        g.save_result = save_result
+        g.datapoints = load_dataset(args.dataset)
+        g.questions = load_questions(args.questions)
+        g.answers = expand(load_answers(args.answers), len(g.datapoints))
+        g.save_answers = partial(save_answers, args.answers)
 
     app.run(host='0.0.0.0', debug=False, use_evalex=False, port=args.port, threaded=True)
 
 
 bp = Blueprint('main', __name__)
+
+
+def load_questions(questions_path):
+    try:
+        questions = json.loads(Path(questions_path).read_text())
+    except Exception as e:
+        raise Exception(f'Failed to load {questions_path}: {e}')
+    assert isinstance(questions, dict)
+    return questions
 
 
 def load_dataset(dataset_path):
@@ -59,6 +54,28 @@ def load_dataset(dataset_path):
     return data
 
 
+def load_answers(answers_path):
+    try:
+        answers = json.loads(Path(answers_path).read_text())
+    except FileNotFoundError:
+        answers = []
+    assert isinstance(answers, list)
+    return answers
+
+
+def save_answers(answers_path, index, datapoint_answers):
+    assert isinstance(index, int)
+    answers = expand(load_answers(answers_path), index + 1)
+    answers[index] = datapoint_answers
+    temp = Path(answers_path + '.temp')
+    temp.write_text(json.dumps(answers, indent=2, sort_keys=True))
+    temp.rename(answers_path)
+
+
+def expand(lst, min_length):
+    return lst + [None] * max(0, min_length - len(lst))
+
+
 @bp.route('/')
 def index():
     return render_template('index.html', datapoints=g.datapoints)
@@ -67,30 +84,23 @@ def index():
 @bp.route('/<int:point_id>')
 def detail(point_id):
     return render_template('detail.html',
+        point_id=point_id,
         datapoint=g.datapoints[point_id],
-        datapoint_answers=)
+        questions=g.questions,
+        datapoint_answers=g.answers[point_id] or {},
+        previous_point_id=point_id - 1 if point_id > 0 else None,
+        next_point_id=point_id + 1 if len(g.datapoints) > point_id + 1 else None)
 
 
-    regs = load_regs()
-    ev_data = load_evaluations()
-    ev_answers = ev_data.get(reg_id) or {}
-    (n, reg), = [(n, reg) for n, reg in enumerate(regs) if reg['id'] == reg_id]
-    prev_reg = regs[n-1] if n > 0 else regs[0]
-    next_reg = regs[n+1] if n + 1 < len(regs) else regs[0]
-    return render_template('detail.html',
-        reg=reg, prev_reg=prev_reg, next_reg=next_reg,
-        evaluations=[{**ev, 'answer': ev_answers.get(ev['id'])} for ev in evaluations])
+@bp.route('/submit/<int:point_id>', methods=['POST'])
+def submit_answers(point_id):
+    answers = {q_id: request.form.get(q_id) for q_id in g.questions.keys()}
+    g.save_answers(point_id, answers)
+    if point_id + 1 < len(g.datapoints):
+        return redirect('/{}'.format(point_id + 1))
+    else:
+        return redirect('/')
 
 
-@bp.route('/<int:reg_id>/submit-evaluation', methods=['POST'])
-def submit_evaluation(reg_id):
-    ev_data = load_evaluations()
-    answers = ev_data.setdefault(reg_id, {})
-    for ev in evaluations:
-        ev_id = ev['id']
-        if request.form.get(ev_id):
-            answer = int(request.form[ev_id])
-            assert answer in ev['choices']
-            answers[ev_id] = answer
-    save_evaluations(ev_data)
-    return redirect('/{}'.format(reg_id + 1))
+if __name__ == '__main__':
+    main()

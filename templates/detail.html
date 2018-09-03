@@ -14,16 +14,29 @@
     <div class="container">
 
       <div class="float-right">
-        {% if prev_reg %}
-          <a href="/{{ prev_reg.id }}" class="btn btn-light">prev</a>
+        {% if previous_point_id %}
+          <a href="/{{ previous_point_id }}" class="btn btn-light">prev</a>
         {% endif %}
-        {% if next_reg %}
-          <a href="/{{ next_reg.id }}" class="btn btn-light">next</a>
+        {% if next_point_id %}
+          <a href="/{{ next_point_id }}" class="btn btn-light">next</a>
         {% endif %}
       </div>
 
-      <h1>{{ reg.id }}</h1>
+      <h1>{{ point_id }}</h1>
 
+      {% for k in datapoint %}
+        <h3>{{ k }}<h3>
+        <div class="answer">
+          {% if datapoint[k] == None %}
+            -
+          {% else %}
+            {{ datapoint[k] }}
+          {% endif %}
+        </div>
+      {% endfor %}
+
+
+      {#
       <div class="answer">
         {{ reg.experience }}
       </div>
@@ -36,19 +49,33 @@
       <div class="answer">
         {{ reg.dedication }}
       </div>
+      #}
+
       <br>
 
-      <form class="" action="/{{ reg.id }}/submit-evaluation" method="post">
-        {% for ev in evaluations %}
+      <form class="" action="/submit/{{ point_id }}" method="post">
+
+        {% for q in questions %}
             <div class="form-check">
-              {{ ev.question }} &nbsp;
-              {% for choice in ev.choices %}
+              {{ questions[q].question }}
+              &nbsp;
+              {% set q_index = loop.index %}
+              {% for choice in questions[q].choices %}
+                {% set radio_id = 'radio_{}_{}'.format(q_index, loop.index) %}
                 <label class="custom-control custom-radio">
-                  <input id="radio_{{ ev.id }}_{{ choice }}" name="{{ ev.id }}" type="radio" {% if choice == ev.answer %}checked{% endif %} class="custom-control-input" value="{{ choice }}">
+                  <input
+                    type="radio"
+                    id="{{ radio_id }}"
+                    name="{{ q }}"
+                    value="{{ choice }}"
+                    {% if choice|string == datapoint_answers.get(q)|string %}checked{% endif %} 
+                    class="custom-control-input"
+                  >
                   <span class="custom-control-indicator"></span>
                   <span class="custom-control-description">{{ choice }}</span>
                 </label>
               {% endfor %}
+
           </div>
         {% endfor %}
         <button type="submit" class="btn btn-primary">Submit</button>

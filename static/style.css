@@ -1,9 +1,14 @@
 body {
-  padding-top: 2rem;
+  padding-top: 1rem;
   padding-bottom: 2rem;
+  font-size: 14px;
+}
+h3 {
+  font-size: 110%;
+  font-weight: 600;
 }
 .answer {
     margin-top: 1rem;
     margin-bottom: 1rem;
-    font-size: 18px;
+    font-weight: 400;
 }
