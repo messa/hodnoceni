@@ -35,22 +35,6 @@
         </div>
       {% endfor %}
 
-
-      {#
-      <div class="answer">
-        {{ reg.experience }}
-      </div>
-      <div class="answer">
-        {{ reg.source }}
-      </div>
-      <div class="answer">
-        {{ reg.expectations }}
-      </div>
-      <div class="answer">
-        {{ reg.dedication }}
-      </div>
-      #}
-
       <br>
 
       <form class="" action="/submit/{{ point_id }}" method="post">
@@ -68,7 +52,7 @@
                     id="{{ radio_id }}"
                     name="{{ q }}"
                     value="{{ choice }}"
-                    {% if choice|string == datapoint_answers.get(q)|string %}checked{% endif %} 
+                    {% if choice|string == datapoint_answers.get(q)|string %}checked{% endif %}
                     class="custom-control-input"
                   >
                   <span class="custom-control-indicator"></span>
