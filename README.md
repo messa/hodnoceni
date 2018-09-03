@@ -30,7 +30,7 @@ $ python3 evaluation_web.py
 
 For argument description see `python3 evaluation_web.py --help`.
 
-Grab some wine, beer, cocoa and enjoy evaluating all items :)
+Grab some wine, beer, or cocoa, sit down in a beanbag with a tablet device and enjoy evaluating all items :)
 
 The results will be stored in `answers.json` in this format (example):
 
