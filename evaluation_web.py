@@ -47,10 +47,18 @@ def load_dataset(dataset_path):
     '''
     s = Path(dataset_path).read_text().strip()
     if s.startswith('['):
-        data = json.loads(s)
+        try:
+            data = json.loads(s)
+        except Exception as e:
+            raise Exception(f'Failed to load {dataset_path}: {e}')
         assert isinstance(data, list)
     else:
-        data = [json.loads(line) for line in s.splitlines()]
+        data = []
+        for n, line in enumerate(s.splitlines(), start=1):
+            try:
+                data.append(json.loads(line))
+            except Exception as e:
+                raise Exception(f'Failed to load {dataset_path} line {n}: {e}')
     return data
 
 

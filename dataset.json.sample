@@ -1,0 +1,18 @@
+[
+  {
+    "favorite color": "red",
+    "language": "C++"
+  },
+  {
+    "favorite color": "yellow",
+    "language": "Python"
+  },
+  {
+    "favorite color": "black",
+    "language": "Haskell"
+  },
+  {
+    "favorite color": "blue",
+    "language": "C#"
+  }
+]

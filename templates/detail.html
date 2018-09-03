@@ -14,10 +14,10 @@
     <div class="container">
 
       <div class="float-right">
-        {% if previous_point_id %}
+        {% if previous_point_id != None %}
           <a href="/{{ previous_point_id }}" class="btn btn-light">prev</a>
         {% endif %}
-        {% if next_point_id %}
+        {% if next_point_id != None %}
           <a href="/{{ next_point_id }}" class="btn btn-light">next</a>
         {% endif %}
       </div>
